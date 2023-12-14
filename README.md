@@ -10,7 +10,7 @@
   </p>
 </p>
 
-![Downloads](https://img.shields.io/github/downloads/dirkbrnd/resistance_coup/total) ![Contributors](https://img.shields.io/github/contributors/dirkbrnd/resistance_coup?color=dark-green) ![Issues](https://img.shields.io/github/issues/dirkbrnd/resistance_coup) ![License](https://img.shields.io/github/license/dirkbrnd/resistance_coup) 
+![Downloads](https://img.shields.io/github/downloads/dirkbrnd/Resistance-Coup-Autogen/total) ![Contributors](https://img.shields.io/github/contributors/dirkbrnd/Resistance-Coup-Autogen?color=dark-green) ![Issues](https://img.shields.io/github/issues/dirkbrnd/Resistance-Coup-Autogen) ![License](https://img.shields.io/github/license/dirkbrnd/Resistance-Coup-Autogen) 
 
 ## About The Project
 <p align="center">
@@ -35,7 +35,7 @@ The main package to mention here is [Autogen](https://microsoft.github.io/autoge
 1. Clone the repo
 
 ```sh
-git clone https://github.com/dirkbrnd/resistance_coup.git
+git clone https://github.com/dirkbrnd/Resistance-Coup-Autogen.git
 ```
 
 2. Install the game
@@ -52,12 +52,12 @@ python coup.py
 
 ## Roadmap
 
-See the [open issues](https://github.com/dirkbrnd/resistance_coup/issues) for a list of proposed features (and known issues).
+See the [open issues](https://github.com/dirkbrnd/Resistance-Coup-Autogen/issues) for a list of proposed features (and known issues).
 
 ## Contributing
 
 Contributions are what make the open source community such an amazing place to be learn, inspire, and create. Any contributions you make are **greatly appreciated**.
-* If you have suggestions for adding or removing projects, feel free to [open an issue](https://github.com/dirkbrnd/resistance_coup/issues/new) to discuss it, or directly create a pull request.
+* If you have suggestions for adding or removing projects, feel free to [open an issue](https://github.com/dirkbrnd/Resistance-Coup-Autogen/issues/new) to discuss it, or directly create a pull request.
 * Please make sure you check your spelling and grammar.
 * Create individual PR for each suggestion.
 
