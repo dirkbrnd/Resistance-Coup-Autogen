@@ -63,7 +63,8 @@ class ResistanceCoupGameHandler:
 
         for i in range(number_of_players):
             player_name = f"Player_{str(i + 1)}"
-            self._players[player_name] = Player(name=player_name)
+            strategy = random.choice(["conservative", "aggressive"])
+            self._players[player_name] = Player(name=player_name, strategy=strategy)
             self._player_names.append(player_name)
 
         self.initialize_game()
@@ -87,7 +88,9 @@ class ResistanceCoupGameHandler:
                 players_str += f" - {player_name} with {len(player.cards)} cards and {player.coins} coins\n"
 
         return {
-            "active_players": [player_name for player_name, player in self._players.items() if player.is_active],
+            "active_players": [{"name": player_name,
+                                "coins": player.coins,
+                                "cards": len(player.cards)} for player_name, player in self._players.items() if player.is_active],
             "treasury_coin": self._treasury,
             "next_player": self.current_player.name
         }

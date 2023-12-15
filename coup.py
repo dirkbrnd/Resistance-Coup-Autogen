@@ -1,3 +1,4 @@
+import random
 import sys
 
 from autogen import GroupChat, GroupChatManager, UserProxyAgent, config_list_from_dotenv, AssistantAgent
@@ -19,14 +20,15 @@ config_list = config_list_from_dotenv(
 
 
 def main():
-    # Create game handler with 5 players
+    # Create game handler with 3 players
     handler = ResistanceCoupGameHandler(3)
     print(f"First player is {handler.current_player}")
 
     # Create AI players
     agent_players = []
     for ind, player in enumerate(handler.players):
-        agent_players.append(create_player_agent(player.name, [other_player.name for other_player in handler.players if other_player.name != player.name], player.cards, handler, config_list))
+        agent_players.append(create_player_agent(name=player.name, other_player_names=[other_player.name for other_player in handler.players if other_player.name != player.name],
+                                                 cards=player.cards, strategy=player.strategy, handler=handler, config_list=config_list))
 
     # Game master
     game_master: AssistantAgent = create_game_master_agent(handler, config_list)

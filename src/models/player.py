@@ -11,6 +11,7 @@ class Player(BaseModel, ABC):
     name: str
     coins: int = 0
     cards: List[Card] = []
+    strategy: str
     is_active: bool = False
 
     def __str__(self):

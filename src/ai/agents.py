@@ -76,7 +76,7 @@ def create_game_master_agent(handler: ResistanceCoupGameHandler, config_list: li
     return game_master
 
 
-def create_player_agent(name: str, other_player_names: list[str], cards: list[Card],
+def create_player_agent(name: str, other_player_names: list[str], cards: list[Card], strategy: str,
                         handler: ResistanceCoupGameHandler, config_list: list) -> AssistantAgent:
     llm_config = {
         "config_list": config_list,
@@ -114,7 +114,6 @@ def create_player_agent(name: str, other_player_names: list[str], cards: list[Ca
         ]
     }
 
-
     instructions = f"""Your name is {name} and you are a player in the game The Resistance: Coup. 
         You are playing against {", ".join(other_player_names)}. 
         
@@ -131,6 +130,10 @@ def create_player_agent(name: str, other_player_names: list[str], cards: list[Ca
         You also chit-chat with your opponent when you communicate an action to light up the mood.
 
         You should ensure both you and your opponents are making valid actions. Also that everyone is only taking actions when it is their turn.
+        
+        Your strategy should be to play {strategy}.
+        
+        Don't hoard up coins, but rather try the assassinate or coup actions when you have a chance. 
 
         Do not apologize for making invalid actions.
         
