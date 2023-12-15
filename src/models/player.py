@@ -1,3 +1,4 @@
+import random
 from abc import ABC
 from typing import List, Optional
 
@@ -25,3 +26,8 @@ class Player(BaseModel, ABC):
                 return self.cards.pop(ind)
 
         return None
+
+    def remove_card(self) -> None:
+        """Remove a random card"""
+        # Remove a random card
+        self.cards.pop(random.randrange(len(self.cards)))
