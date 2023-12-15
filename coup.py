@@ -20,8 +20,8 @@ config_list = config_list_from_dotenv(
 
 
 def main():
-    # Create game handler with 3 players
-    handler = ResistanceCoupGameHandler(3)
+    # Create game handler with 5 players
+    handler = ResistanceCoupGameHandler(5)
     print(f"First player is {handler.current_player}")
 
     # Create AI players
