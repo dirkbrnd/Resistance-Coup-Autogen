@@ -187,29 +187,32 @@ The number of coins in the treasury: {self._treasury}
 
     def _validate_action(
         self, action: Action, current_player: Player, target_player: Optional[Player]
-    ) -> bool:
+    ):
+        if current_player.coins >= 10 and action.action_type != ActionType.coup:
+            raise Exception(f"Invalid action: You have more than 10 coins and have to perform {ActionType.coup} action.")
+
         if (
             action.action_type in [ActionType.coup, ActionType.steal, ActionType.assassinate] and not target_player
         ):
-            return False
+            raise Exception(f"Invalid action: You need a `target_player` for the action {action.action_type}")
 
         # Can't take coin if the treasury has none
         if (
             action.action_type in [ActionType.income, ActionType.foreign_aid, ActionType.tax] and self._treasury == 0
         ):
-            return False
+            raise Exception(f"Invalid action: The treasury has no coin to give")
 
         # You can only do a coup if you have at least 7 coins.
         if action.action_type == ActionType.coup and current_player.coins < 7:
-            return False
+            raise Exception(f"Invalid action: You need more coins to be able to perform the {ActionType.coup} action.")
 
         # You can only do an assassination if you have at least 3 coins.
         if action.action_type == ActionType.assassinate and current_player.coins < 3:
-            return False
+            raise Exception(f"Invalid action: You need more coins to be able to perform the {ActionType.assassinate} action.")
 
         # Can't steal from player with 0 coins
         if action.action_type == ActionType.steal and target_player.coins == 0:
-            return False
+            raise Exception(f"Invalid action: You cannot steal from a player with no coins.")
 
         return True
 
@@ -229,8 +232,7 @@ The number of coins in the treasury: {self._treasury}
         if player_name != self.current_player.name:
             raise Exception(f"Wrong player, it is currently {self.current_player.name}'s turn.")
 
-        if not self._validate_action(action, self.current_player, target_player):
-            raise Exception("Invalid action")
+        self._validate_action(action, self.current_player, target_player)
 
         # Keep track of the currently played action
         self._current_action = action
