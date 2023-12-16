@@ -236,16 +236,18 @@ The number of coins in the treasury: {self._treasury}
         # Player being challenged reveals the card
         print(f"{player_being_challenged} reveals their {card} card!")
         print(f"{challenger} loses the challenge")
+        print(f"{challenger} has lost influence...")
 
         # Challenge player loses influence (chooses a card to remove)
         challenger.remove_card()
 
         # Player puts card into the deck and gets a new card
-        print(f"{player_being_challenged} gets a new card")
+        print(f"{player_being_challenged} gets a new card\n")
         self._swap_card(player_being_challenged, card)
 
     def _challenge_against_player_succeeded(self, player_being_challenged: Player):
         print(f"{player_being_challenged} bluffed! They do not have the required card!")
+        print(f"{player_being_challenged} has lost influence...\n")
 
         # Player being challenged loses influence (chooses a card to remove)
         player_being_challenged.remove_card()
