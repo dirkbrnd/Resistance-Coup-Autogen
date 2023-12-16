@@ -104,4 +104,3 @@ def get_counter_action(action_type: ActionType) -> CounterAction:
         ActionType.steal: BlockStealCounterAction(),
         ActionType.assassinate: BlockAssassinationCounterAction(),
     }[action_type]
-
