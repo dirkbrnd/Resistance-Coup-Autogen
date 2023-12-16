@@ -12,7 +12,6 @@ from src.models.action import (
     IncomeAction,
     StealAction,
     TaxAction,
-    get_counter_action,
 )
 from src.models.card import Card, CardType
 from src.models.player import Player, PlayerStrategy
@@ -77,7 +76,9 @@ class ResistanceCoupGameHandler:
 
         for i in range(number_of_players):
             player_name = f"Player_{str(i + 1)}"
-            strategy = random.choice([PlayerStrategy.conservative, PlayerStrategy.aggressive, PlayerStrategy.coup_freak])
+            strategy = random.choice(
+                [PlayerStrategy.conservative, PlayerStrategy.aggressive, PlayerStrategy.coup_freak]
+            )
             self._players[player_name] = Player(name=player_name, strategy=strategy)
             self._player_names.append(player_name)
 
@@ -189,33 +190,43 @@ The number of coins in the treasury: {self._treasury}
         self, action: Action, current_player: Player, target_player: Optional[Player]
     ):
         if current_player.coins >= 10 and action.action_type != ActionType.coup:
-            raise Exception(f"Invalid action: You have more than 10 coins and have to perform "
-                            f"{ActionType.coup.value} action.")
+            raise Exception(
+                f"Invalid action: You have more than 10 coins and have to perform "
+                f"{ActionType.coup.value} action."
+            )
 
         if (
-            action.action_type in [ActionType.coup, ActionType.steal, ActionType.assassinate] and not target_player
+            action.action_type in [ActionType.coup, ActionType.steal, ActionType.assassinate]
+            and not target_player
         ):
-            raise Exception(f"Invalid action: You need a `target_player` for the action {action.action_type.value}")
+            raise Exception(
+                f"Invalid action: You need a `target_player` for the action {action.action_type.value}"
+            )
 
         # Can't take coin if the treasury has none
         if (
-            action.action_type in [ActionType.income, ActionType.foreign_aid, ActionType.tax] and self._treasury == 0
+            action.action_type in [ActionType.income, ActionType.foreign_aid, ActionType.tax]
+            and self._treasury == 0
         ):
-            raise Exception(f"Invalid action: The treasury has no coin to give")
+            raise Exception("Invalid action: The treasury has no coin to give")
 
         # You can only do a coup if you have at least 7 coins.
         if action.action_type == ActionType.coup and current_player.coins < 7:
-            raise Exception(f"Invalid action: You need more coins to be able to perform the "
-                            f"{ActionType.coup.value} action.")
+            raise Exception(
+                f"Invalid action: You need more coins to be able to perform the "
+                f"{ActionType.coup.value} action."
+            )
 
         # You can only do an assassination if you have at least 3 coins.
         if action.action_type == ActionType.assassinate and current_player.coins < 3:
-            raise Exception(f"Invalid action: You need more coins to be able to perform the "
-                            f"{ActionType.assassinate.value} action.")
+            raise Exception(
+                f"Invalid action: You need more coins to be able to perform the "
+                f"{ActionType.assassinate.value} action."
+            )
 
         # Can't steal from player with 0 coins
         if action.action_type == ActionType.steal and target_player.coins == 0:
-            raise Exception(f"Invalid action: You cannot steal from a player with no coins.")
+            raise Exception("Invalid action: You cannot steal from a player with no coins.")
 
         return True
 
@@ -223,7 +234,9 @@ The number of coins in the treasury: {self._treasury}
         self, player_name: str, action_name: ActionType, target_player_name: Optional[str] = ""
     ) -> dict:
         if self._determine_win_state():
-            raise Exception(f"You can't play anymore, the game has already ended. {self.current_player} won already.")
+            raise Exception(
+                f"You can't play anymore, the game has already ended. {self.current_player} won already."
+            )
 
         # Reset current action
         self._current_action = None
@@ -236,8 +249,10 @@ The number of coins in the treasury: {self._treasury}
             target_player = self._players[target_player_name]
 
         if not self._players[player_name].is_active:
-            raise Exception(f"You have been defeated and can't play anymore! "
-                            f"It is currently {self.current_player.name}'s turn.")
+            raise Exception(
+                f"You have been defeated and can't play anymore! "
+                f"It is currently {self.current_player.name}'s turn."
+            )
 
         if player_name != self.current_player.name:
             raise Exception(f"Wrong player, it is currently {self.current_player.name}'s turn.")
@@ -251,14 +266,18 @@ The number of coins in the treasury: {self._treasury}
         if action.can_be_countered:
             return {"turn_complete": False, "action_can_be_countered": True, "game_over": False}
         else:
-            return self.execute_action(self.current_player.name, action.action_type, target_player_name)
+            return self.execute_action(
+                self.current_player.name, action.action_type, target_player_name
+            )
 
     def counter_action(self, countering_player_name: str):
         countering_player = self._players[countering_player_name]
 
         self._current_action_is_countered = True
 
-        print(f"{countering_player} is countering the previous action: {self._current_action.action_type.value}")
+        print(
+            f"{countering_player} is countering the previous action: {self._current_action.action_type.value}"
+        )
 
         return self.execute_action(
             player_name=self.current_player.name,

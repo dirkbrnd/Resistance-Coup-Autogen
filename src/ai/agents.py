@@ -6,7 +6,6 @@ from src.models.card import Card
 from src.models.player import PlayerStrategy
 
 
-
 def create_user_proxy(config_list: list) -> UserProxyAgent:
     llm_config = {
         "config_list": config_list,
@@ -174,15 +173,21 @@ def create_player_agent(
     }
 
     if strategy == PlayerStrategy.aggressive:
-        strategy_str = ("Your strategy is to play aggressive. Try to assassinate, coup, or steal as soon as you can. "
-                        "Feel free to bluff, but be careful because it can be challenged.  If you keep getting blocked,"
-                        "rather get income on your next turn, before playing aggressive again.")
+        strategy_str = (
+            "Your strategy is to play aggressive. Try to assassinate, coup, or steal as soon as you can. "
+            "Feel free to bluff, but be careful because it can be challenged.  If you keep getting blocked,"
+            "rather get income on your next turn, before playing aggressive again."
+        )
     elif strategy == PlayerStrategy.conservative:
-        strategy_str = ("Your strategy is to play conservative. "
-                        "Build up your money, avoid bluffing, and wait for the opportunity to perform a coup.")
+        strategy_str = (
+            "Your strategy is to play conservative. "
+            "Build up your money, avoid bluffing, and wait for the opportunity to perform a coup."
+        )
     else:
-        strategy_str = ("Your strategy is to perform a coup as soon as you can and gather money as "
-                        "quickly as possible.")
+        strategy_str = (
+            "Your strategy is to perform a coup as soon as you can and gather money as "
+            "quickly as possible."
+        )
 
     instructions = f"""Your name is {name} and you are a player in the game The Resistance: Coup. 
         You are playing against {", ".join(other_player_names)}. 

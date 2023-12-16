@@ -20,8 +20,9 @@
 
 This is an automated version of [The Resistance: Coup](https://www.ultraboardgames.com/coup/game-rules.php#google_vignette) where OpenAI agents play the game for our entertainment.
 
+The main package to mention here is [Autogen](https://microsoft.github.io/autogen/). It was instrumental in the multi-agent conversation setup!
 
-The main package to mention here is [Autogen](https://microsoft.github.io/autogen/). It was instrumental in our multi-agent conversation setup!
+You require an API key from [OpenAI](https://platform.openai.com/docs/overview) to be able to run this. 
 
 ## Getting Started
 
@@ -38,13 +39,13 @@ The main package to mention here is [Autogen](https://microsoft.github.io/autoge
 git clone https://github.com/dirkbrnd/Resistance-Coup-Autogen.git
 ```
 
-2. Install the game
+3. Create a `.env` file with your OpenAI key in the root directory.
 
-```sh
-poetry install
+```text
+OPENAI_API_KEY=sk-xxxxxxxxxxxxxxxxxxxxxxxxxxx
 ```
 
-3. Launch and watch the AI agents play the game!
+4. Launch and watch the AI agents play the game!
 
 ```sh
 python coup.py
