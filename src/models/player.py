@@ -13,6 +13,7 @@ class PlayerStrategy(str, Enum):
     conservative = "conservative"
     coup_freak = "coup_freak"
 
+
 class Player(BaseModel, ABC):
     name: str
     coins: int = 0
