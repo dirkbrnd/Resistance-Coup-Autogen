@@ -2,8 +2,17 @@ import random
 from enum import Enum
 from typing import List, Optional
 
-from src.models.action import Action, ActionType, TaxAction, ForeignAidAction, StealAction, AssassinateAction, \
-    ExchangeAction, IncomeAction, CoupAction
+from src.models.action import (
+    Action,
+    ActionType,
+    AssassinateAction,
+    CoupAction,
+    ExchangeAction,
+    ForeignAidAction,
+    IncomeAction,
+    StealAction,
+    TaxAction,
+)
 from src.models.card import Card, CardType
 from src.models.player import Player
 
@@ -85,21 +94,27 @@ class ResistanceCoupGameHandler:
         players_str = ""
         for player_name, player in self._players.items():
             if player.is_active:
-                players_str += f" - {player_name} with {len(player.cards)} cards and {player.coins} coins\n"
+                players_str += (
+                    f" - {player_name} with {len(player.cards)} cards and {player.coins} coins\n"
+                )
 
         return {
-            "active_players": [{"name": player_name,
-                                "coins": player.coins,
-                                "cards": len(player.cards)} for player_name, player in self._players.items() if player.is_active],
+            "active_players": [
+                {"name": player_name, "coins": player.coins, "cards": len(player.cards)}
+                for player_name, player in self._players.items()
+                if player.is_active
+            ],
             "treasury_coin": self._treasury,
-            "next_player": self.current_player.name
+            "next_player": self.current_player.name,
         }
 
     def get_game_state_str(self) -> str:
         players_str = ""
         for player_name, player in self._players.items():
             if player.is_active:
-                players_str += f"  - {player_name} {len(player.cards)} cards | {player.coins} coins\n"
+                players_str += (
+                    f"  - {player_name} {len(player.cards)} cards | {player.coins} coins\n"
+                )
 
         return f"""
 The remaining players are:
@@ -167,47 +182,54 @@ The number of coins in the treasury: {self._treasury}
     def _determine_win_state(self) -> bool:
         return sum(player.is_active for player in self._players.values()) == 1
 
-<<<<<<< Updated upstream
-    def validate_action(self, action: Action, current_player: Player, target_player: Optional[Player]) -> bool:
-        if action.action_type in [ActionType.coup, ActionType.steal, ActionType.assassinate] and not target_player:
-            return False
-
-        # Can't take coin if the treasury has none
-=======
     def _validate_action(
         self, action: Action, current_player: Player, target_player: Optional[Player]
     ):
         if current_player.coins >= 10 and action.action_type != ActionType.coup:
-            raise Exception(f"Invalid action: You have more than 10 coins and have to perform {ActionType.coup} action.")
+            raise Exception(
+                f"Invalid action: You have more than 10 coins and have to perform {ActionType.coup} action."
+            )
 
         if (
-            action.action_type in [ActionType.coup, ActionType.steal, ActionType.assassinate] and not target_player
+            action.action_type in [ActionType.coup, ActionType.steal, ActionType.assassinate]
+            and not target_player
         ):
-            raise Exception(f"Invalid action: You need a `target_player` for the action {action.action_type}")
+            raise Exception(
+                f"Invalid action: You need a `target_player` for the action {action.action_type}"
+            )
 
         # Can't take coin if the treasury has none
         if (
-            action.action_type in [ActionType.income, ActionType.foreign_aid, ActionType.tax] and self._treasury == 0
+            action.action_type in [ActionType.income, ActionType.foreign_aid, ActionType.tax]
+            and self._treasury == 0
         ):
-            raise Exception(f"Invalid action: The treasury has no coin to give")
->>>>>>> Stashed changes
+            raise Exception("Invalid action: The treasury has no coin to give")
 
         # You can only do a coup if you have at least 7 coins.
         if action.action_type == ActionType.coup and current_player.coins < 7:
-            raise Exception(f"Invalid action: You need more coins to be able to perform the {ActionType.coup} action.")
+            raise Exception(
+                f"Invalid action: You need more coins to be able to perform the {ActionType.coup} action."
+            )
 
         # You can only do an assassination if you have at least 3 coins.
         if action.action_type == ActionType.assassinate and current_player.coins < 3:
-            raise Exception(f"Invalid action: You need more coins to be able to perform the {ActionType.assassinate} action.")
+            raise Exception(
+                f"Invalid action: You need more coins to be able to perform the {ActionType.assassinate} action."
+            )
 
         # Can't steal from player with 0 coins
         if action.action_type == ActionType.steal and target_player.coins == 0:
-            raise Exception(f"Invalid action: You cannot steal from a player with no coins.")
+            raise Exception("Invalid action: You cannot steal from a player with no coins.")
 
         return True
 
-    def perform_action(self, player_name: str, action_name: ActionType, target_player_name: Optional[str] = "",
-                       countered: bool = False) -> dict:
+    def perform_action(
+        self,
+        player_name: str,
+        action_name: ActionType,
+        target_player_name: Optional[str] = "",
+        countered: bool = False,
+    ) -> dict:
 
         action = ACTIONS_MAP[action_name]
         target_player = None
@@ -217,12 +239,7 @@ The number of coins in the treasury: {self._treasury}
         if player_name != self.current_player.name:
             raise Exception(f"Wrong player, it is currently {self.current_player.name}'s turn.")
 
-<<<<<<< Updated upstream
-        if not self.validate_action(action, self.current_player, target_player):
-            raise Exception("Invalid action")
-=======
         self._validate_action(action, self.current_player, target_player)
->>>>>>> Stashed changes
 
         result_action_str = ""
 
@@ -236,7 +253,9 @@ The number of coins in the treasury: {self._treasury}
                     # Player gets 2 coin
                     taken_coin = self._take_coin_from_treasury(2)
                     self.current_player.coins += taken_coin
-                    result_action_str = f"{self.current_player}'s coins are increased by {taken_coin}"
+                    result_action_str = (
+                        f"{self.current_player}'s coins are increased by {taken_coin}"
+                    )
             case ActionType.coup:
                 # Player pays 7 coin
                 self.current_player.coins -= self._give_coin_to_treasury(7)
@@ -262,7 +281,9 @@ The number of coins in the treasury: {self._treasury}
                     steal_amount = min(target_player.coins, 2)
                     target_player.coins -= steal_amount
                     self.current_player.coins += steal_amount
-                    result_action_str = f"{self.current_player} steals {steal_amount} coins from {target_player}"
+                    result_action_str = (
+                        f"{self.current_player} steals {steal_amount} coins from {target_player}"
+                    )
 
             case ActionType.exchange:
                 # Get 2 random cards from deck
@@ -272,7 +293,10 @@ The number of coins in the treasury: {self._treasury}
                 self.current_player.cards += cards
                 random.shuffle(self.current_player.cards)
 
-                first_card, second_card = self.current_player.cards.pop(), self.current_player.cards.pop()
+                first_card, second_card = (
+                    self.current_player.cards.pop(),
+                    self.current_player.cards.pop(),
+                )
                 self._deck.append(first_card)
                 self._deck.append(second_card)
 
@@ -283,18 +307,11 @@ The number of coins in the treasury: {self._treasury}
         # Have we reached a winner?
         if self._determine_win_state():
             print(f"The game is over! {self.current_player} has won!")
-            return {
-                "success": True,
-                "game_over": True
-            }
+            return {"success": True, "game_over": True}
 
         # Next player
         self._next_player()
 
         print(result_action_str + "\n" + self.get_game_state_str())
 
-        return {
-            "success": True,
-            "next_player": self.current_player.name,
-            "game_over": False
-        }
+        return {"success": True, "next_player": self.current_player.name, "game_over": False}

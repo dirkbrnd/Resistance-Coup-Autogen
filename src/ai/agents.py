@@ -1,13 +1,11 @@
-from autogen import UserProxyAgent, AssistantAgent
-from autogen.agentchat.contrib.gpt_assistant_agent import GPTAssistantAgent
+from autogen import AssistantAgent, UserProxyAgent
 
 from src.handler.game_handler import ResistanceCoupGameHandler
 from src.models.action import ActionType
 from src.models.card import Card
 
-
-
 # SEED = 42
+
 
 def create_user_proxy(config_list: list) -> UserProxyAgent:
     llm_config = {
@@ -21,7 +19,8 @@ def create_user_proxy(config_list: list) -> UserProxyAgent:
         llm_config=llm_config,
         is_termination_msg=lambda x: x.get("content", "").rstrip().endswith("TERMINATE"),
         system_message="""
-            You are facilitating a game of The Resistance: Coup between five players. Respond with TERMINATE once the game has a winner.
+            You are facilitating a game of The Resistance: Coup between five players. Respond with TERMINATE once the 
+            game has a winner.
             At the start of the game, you will inform the starting player that it is their turn.
             In between each player's turn you have to retrieve the game state and provide it to the players.
             """,
@@ -33,7 +32,9 @@ def create_user_proxy(config_list: list) -> UserProxyAgent:
     return user_proxy
 
 
-def create_game_master_agent(handler: ResistanceCoupGameHandler, config_list: list) -> AssistantAgent:
+def create_game_master_agent(
+    handler: ResistanceCoupGameHandler, config_list: list
+) -> AssistantAgent:
     llm_config = {
         "config_list": config_list,
         # "seed": SEED,
@@ -44,17 +45,17 @@ def create_game_master_agent(handler: ResistanceCoupGameHandler, config_list: li
                 "description": "Get the current state of the game",
                 "parameters": {
                     "type": "object",
-                    "properties": {
-                    },
-                }
+                    "properties": {},
+                },
             },
-        ]
+        ],
     }
 
     instructions = f"""
     You are the game master in a game of The Resistance: Coup between {handler.number_of_players} players.
     
-    At the start of the game, you will inform the starting player that it is their turn and announce to everyone the starting game state.
+    At the start of the game, you will inform the starting player that it is their turn and announce to everyone the 
+    starting game state.
     
     In between each player's turn you have to retrieve the game state and provide it to the current player.
     
@@ -71,13 +72,19 @@ def create_game_master_agent(handler: ResistanceCoupGameHandler, config_list: li
             "get_game_state": handler.get_game_state,
         },
         # max_consecutive_auto_reply=100,
-        description="The game master in a game of The Resistance Coup"
+        description="The game master in a game of The Resistance Coup",
     )
     return game_master
 
 
-def create_player_agent(name: str, other_player_names: list[str], cards: list[Card], strategy: str,
-                        handler: ResistanceCoupGameHandler, config_list: list) -> AssistantAgent:
+def create_player_agent(
+    name: str,
+    other_player_names: list[str],
+    cards: list[Card],
+    strategy: str,
+    handler: ResistanceCoupGameHandler,
+    config_list: list,
+) -> AssistantAgent:
     llm_config = {
         "config_list": config_list,
         # "seed": SEED,
@@ -92,26 +99,30 @@ def create_player_agent(name: str, other_player_names: list[str], cards: list[Ca
                         "player_name": {
                             "type": "string",
                             "description": "Send your own name.",
-                            "enum": [name]
+                            "enum": [name],
                         },
                         "action_name": {
                             "type": "string",
                             "description": "The name of the action to perform.",
-                            "enum": [ActionType.income, ActionType.foreign_aid, ActionType.tax, ActionType.coup,
-                                     ActionType.steal, ActionType.assassinate, ActionType.exchange]
+                            "enum": [
+                                ActionType.income,
+                                ActionType.foreign_aid,
+                                ActionType.tax,
+                                ActionType.coup,
+                                ActionType.steal,
+                                ActionType.assassinate,
+                                ActionType.exchange,
+                            ],
                         },
                         "target_player_name": {
                             "type": "string",
                             "description": "The player name to target.",
                         },
                     },
-                    "required": [
-                        "player_name",
-                        "action_name"
-                    ]
-                }
+                    "required": ["player_name", "action_name"],
+                },
             }
-        ]
+        ],
     }
 
     instructions = f"""Your name is {name} and you are a player in the game The Resistance: Coup. 
@@ -119,17 +130,21 @@ def create_player_agent(name: str, other_player_names: list[str], cards: list[Ca
         
         You start with a {str(cards[0])} card and a {str(cards[1])} card, as well as 2 coins.
         
-        On your turn you have to pick a valid action based on your current available cards and coins. Also provide your own name to the function. 
+        On your turn you have to pick a valid action based on your current available cards and coins. 
+        Also provide your own name to the function. 
         
         Never announce what cards you have, they are secret.
         
-        If your action was invalid, you have to pick another action. However feel free to bluff and perform an action even if you don't have the card.
+        If your action was invalid, you have to pick another action. However feel free to bluff and perform an 
+        action even if you don't have the card.
         
-        The possible actions are {[ActionType.income, ActionType.foreign_aid, ActionType.tax, ActionType.coup, ActionType.steal, ActionType.assassinate, ActionType.exchange]}
+        The possible actions are {[ActionType.income, ActionType.foreign_aid, ActionType.tax, ActionType.coup, 
+                                   ActionType.steal, ActionType.assassinate, ActionType.exchange]}
         
         You also chit-chat with your opponent when you communicate an action to light up the mood.
 
-        You should ensure both you and your opponents are making valid actions. Also that everyone is only taking actions when it is their turn.
+        You should ensure both you and your opponents are making valid actions. Also that everyone is only 
+        taking actions when it is their turn.
         
         Your strategy should be to play {strategy}.
         
@@ -147,7 +162,7 @@ def create_player_agent(name: str, other_player_names: list[str], cards: list[Ca
             "perform_action": handler.perform_action,
         },
         max_consecutive_auto_reply=100,
-        description=f"The player named {name} the game of The Resistance Coup"
+        description=f"The player named {name} the game of The Resistance Coup",
     )
 
     return player
