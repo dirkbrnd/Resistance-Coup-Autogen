@@ -96,7 +96,7 @@ pre-commit install
 
 ## License
 
-Distributed under the MIT License. See [LICENSE](https://github.com/dirkbrnd/Resistance Coup/blob/main/LICENSE.md) for more information.
+Distributed under the MIT License. See [LICENSE](https://github.com/dirkbrnd/Resistance-Coup-Autogen/blob/main/LICENSE.md) for more information.
 
 ## Acknowledgements
 
