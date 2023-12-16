@@ -70,15 +70,15 @@ class ResistanceCoupGameHandler:
     _current_player_index = 0
     _current_action: Optional[Action]
     _current_action_is_countered: bool = False
+    _current_action_is_challenged: bool = False
     _current_action_target_player_name: Optional[str]
+    _current_counter_action_player_name: Optional[str]
 
     def __init__(self, number_of_players: int):
-
+        strategies = [PlayerStrategy.conservative, PlayerStrategy.aggressive, PlayerStrategy.coup_freak]
         for i in range(number_of_players):
             player_name = f"Player_{str(i + 1)}"
-            strategy = random.choice(
-                [PlayerStrategy.conservative, PlayerStrategy.aggressive, PlayerStrategy.coup_freak]
-            )
+            strategy = strategies[i % number_of_players]
             self._players[player_name] = Player(name=player_name, strategy=strategy)
             self._player_names.append(player_name)
 
@@ -191,7 +191,7 @@ The number of coins in the treasury: {self._treasury}
     ):
         if current_player.coins >= 10 and action.action_type != ActionType.coup:
             raise Exception(
-                f"Invalid action: You have more than 10 coins and have to perform "
+                f"Invalid action: You have 10 or more coins and have to perform "
                 f"{ActionType.coup.value} action."
             )
 
@@ -230,6 +230,49 @@ The number of coins in the treasury: {self._treasury}
 
         return True
 
+    def _challenge_against_player_failed(
+        self, player_being_challenged: Player, card: Card, challenger: Player
+    ):
+        # Player being challenged reveals the card
+        print(f"{player_being_challenged} reveals their {card} card!")
+        print(f"{challenger} loses the challenge")
+
+        # Challenge player loses influence (chooses a card to remove)
+        challenger.remove_card()
+
+        # Player puts card into the deck and gets a new card
+        print(f"{player_being_challenged} gets a new card")
+        self._swap_card(player_being_challenged, card)
+
+    def _challenge_against_player_succeeded(self, player_being_challenged: Player):
+        print(f"{player_being_challenged} bluffed! They do not have the required card!")
+
+        # Player being challenged loses influence (chooses a card to remove)
+        player_being_challenged.remove_card()
+
+    def _end_turn(self):
+        print(self.get_game_state_str())
+
+        # Is any player out of the game?
+        while player := self._deactivate_player():
+            print(f"{player} was defeated! They can no longer play")
+
+        # Have we reached a winner?
+        if self._determine_win_state():
+            print("\n" + f"The game is over! {self.current_player} has won!")
+            return {"turn_complete": True, "game_over": True}
+
+        # Next player
+        self._next_player()
+
+        return {
+            "turn_complete": True,
+            "action_can_be_countered": False,
+            "action_can_be_challenged": False,
+            "next_player": self.current_player.name,
+            "game_over": False,
+        }
+
     def perform_action(
         self, player_name: str, action_name: ActionType, target_player_name: Optional[str] = ""
     ) -> dict:
@@ -241,7 +284,9 @@ The number of coins in the treasury: {self._treasury}
         # Reset current action
         self._current_action = None
         self._current_action_target_player_name = None
+        self._current_counter_action_player_name = None
         self._current_action_is_countered = False
+        self._current_action_is_challenged = False
 
         action = ACTIONS_MAP[action_name]
         target_player = None
@@ -263,8 +308,11 @@ The number of coins in the treasury: {self._treasury}
         self._current_action = action
         self._current_action_target_player_name = target_player_name
 
-        if action.can_be_countered:
-            return {"turn_complete": False, "action_can_be_countered": True, "game_over": False}
+        if action.can_be_countered or action.can_be_challenged:
+            return {"turn_complete": False,
+                    "action_can_be_countered": action.can_be_countered,
+                    "action_can_be_challenged": action.can_be_challenged,
+                    "game_over": False}
         else:
             return self.execute_action(
                 self.current_player.name, action.action_type, target_player_name
@@ -272,13 +320,79 @@ The number of coins in the treasury: {self._treasury}
 
     def counter_action(self, countering_player_name: str):
         countering_player = self._players[countering_player_name]
+        if not countering_player.is_active:
+            raise Exception(f"You have been eliminated {countering_player_name}! You cannot counter.")
 
         self._current_action_is_countered = True
+        self._current_counter_action_player_name = countering_player_name
 
         print(
             f"{countering_player} is countering the previous action: {self._current_action.action_type.value}"
         )
 
+        return {
+            "turn_complete": False,
+            "action_can_be_countered": False,
+            "action_can_be_challenged": self._current_action.can_be_challenged,
+            "game_over": False,
+        }
+
+    def challenge_action(self, challenging_player_name: str):
+        challenger = self._players[challenging_player_name]
+        if not challenger.is_active:
+            raise Exception(f"You have been eliminated {challenging_player_name}! You cannot challenge.")
+
+        self._current_action_is_challenged = True
+
+        print(
+            f"{challenger} is challenging the previous action: {self._current_action.action_type.value}."
+        )
+        # Player being challenged has the card
+        if card := self.current_player.find_card(
+                self._current_action.associated_card_type
+        ):
+            self._challenge_against_player_failed(
+                player_being_challenged=self.current_player,
+                card=card,
+                challenger=challenger,
+            )
+            # Go ahead with action execution
+            return self.execute_action(
+                player_name=self.current_player.name,
+                action_name=self._current_action.action_type,
+                target_player_name=self._current_action_target_player_name,
+            )
+        else:
+            # Player being challenged bluffed
+            self._challenge_against_player_succeeded(self.current_player)
+            # Immediately end the turn
+            return self._end_turn()
+
+    def challenge_counter_action(self, challenging_player_name: str):
+        challenger = self._players[challenging_player_name]
+        if not challenger.is_active:
+            raise Exception(f"You have been eliminated {challenging_player_name}! You cannot challenge.")
+
+        print(
+            f"{challenger} is challenging the previous counter action."
+        )
+        countering_player = self._players[self._current_counter_action_player_name]
+
+        # Player being challenged has the card
+        if card := self.current_player.find_card(
+                self._current_action.associated_card_type
+        ):
+            self._challenge_against_player_failed(
+                player_being_challenged=countering_player,
+                card=card,
+                challenger=challenger,
+            )
+        else:
+            # Player being challenged bluffed (counter doesn't happen)
+            self._current_action_is_countered = False
+            self._challenge_against_player_succeeded(countering_player)
+
+        # Go ahead with action and counter execution
         return self.execute_action(
             player_name=self.current_player.name,
             action_name=self._current_action.action_type,
@@ -355,23 +469,6 @@ The number of coins in the treasury: {self._treasury}
                 self._deck.append(first_card)
                 self._deck.append(second_card)
 
-        print(result_action_str + "\n" + self.get_game_state_str())
+        print(result_action_str)
 
-        # Is any player out of the game?
-        while player := self._deactivate_player():
-            print(f"{player} was defeated! They can no longer play")
-
-        # Have we reached a winner?
-        if self._determine_win_state():
-            print("\n" + f"The game is over! {self.current_player} has won!")
-            return {"turn_complete": True, "game_over": True}
-
-        # Next player
-        self._next_player()
-
-        return {
-            "turn_complete": True,
-            "action_can_be_countered": False,
-            "next_player": self.current_player.name,
-            "game_over": False,
-        }
+        return self._end_turn()
