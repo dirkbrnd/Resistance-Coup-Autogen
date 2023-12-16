@@ -222,6 +222,9 @@ The number of coins in the treasury: {self._treasury}
     def perform_action(
         self, player_name: str, action_name: ActionType, target_player_name: Optional[str] = ""
     ) -> dict:
+        if self._determine_win_state():
+            raise Exception(f"You can't play anymore, the game has already ended. {self.current_player} won already.")
+
         # Reset current action
         self._current_action = None
         self._current_action_target_player_name = None
@@ -231,6 +234,10 @@ The number of coins in the treasury: {self._treasury}
         target_player = None
         if target_player_name:
             target_player = self._players[target_player_name]
+
+        if not self._players[player_name].is_active:
+            raise Exception(f"You have been defeated and can't play anymore! "
+                            f"It is currently {self.current_player.name}'s turn.")
 
         if player_name != self.current_player.name:
             raise Exception(f"Wrong player, it is currently {self.current_player.name}'s turn.")

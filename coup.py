@@ -15,7 +15,6 @@ from src.ai.agents import (
 )
 from src.handler.game_handler import ResistanceCoupGameHandler
 
-# SEED = 42
 config_list = config_list_from_dotenv(
     dotenv_file_path=".env",
     filter_dict={
@@ -28,8 +27,8 @@ config_list = config_list_from_dotenv(
 
 
 def main():
-    # Create game handler with 5 players
-    handler = ResistanceCoupGameHandler(5)
+    # Create game handler with 3 players
+    handler = ResistanceCoupGameHandler(3)
     print(f"First player is {handler.current_player}")
 
     # Create AI players
@@ -70,7 +69,6 @@ def main():
     """
 
     game_master.initiate_chat(manager, message=task)
-    # handler.perform_action(ActionType.income)
     print("GAME OVER")
 
 

@@ -6,13 +6,10 @@ from src.models.card import Card
 from src.models.player import PlayerStrategy
 
 
-# SEED = 42
-
 
 def create_user_proxy(config_list: list) -> UserProxyAgent:
     llm_config = {
         "config_list": config_list,
-        # "seed": SEED,
         "temperature": 0,
     }
 
@@ -39,7 +36,6 @@ def create_game_master_agent(
 ) -> AssistantAgent:
     llm_config = {
         "config_list": config_list,
-        # "seed": SEED,
         "temperature": 1,
         "functions": [
             {
@@ -67,6 +63,7 @@ def create_game_master_agent(
     tried to perform an action.
     
     Once there is only one active player left in the game, you can declare the game is over and we have a winner.
+    Don't start another game after it has ended. Don't offer to the other players to play another game.
     """
 
     game_master = AssistantAgent(
@@ -92,8 +89,7 @@ def create_player_agent(
 ) -> AssistantAgent:
     llm_config = {
         "config_list": config_list,
-        # "seed": SEED,
-        "temperature": 0.4,
+        "temperature": 0.5,
         "functions": [
             {
                 "name": "perform_action",
@@ -179,13 +175,14 @@ def create_player_agent(
 
     if strategy == PlayerStrategy.aggressive:
         strategy_str = ("Your strategy is to play aggressive. Try to assassinate, coup, or steal as soon as you can. "
-                        "Feel free to bluff, but be careful because it can be challenged.")
+                        "Feel free to bluff, but be careful because it can be challenged.  If you keep getting blocked,"
+                        "rather get income on your next turn, before playing aggressive again.")
     elif strategy == PlayerStrategy.conservative:
         strategy_str = ("Your strategy is to play conservative. "
                         "Build up your money, avoid bluffing, and wait for the opportunity to perform a coup.")
     else:
-        strategy_str = ("Your strategy is to coup as soon as you can and gather money as quickly as possible "
-                        "to have enough to perform a coup against another player.")
+        strategy_str = ("Your strategy is to perform a coup as soon as you can and gather money as "
+                        "quickly as possible.")
 
     instructions = f"""Your name is {name} and you are a player in the game The Resistance: Coup. 
         You are playing against {", ".join(other_player_names)}. 
