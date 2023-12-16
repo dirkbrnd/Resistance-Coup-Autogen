@@ -61,7 +61,7 @@ def main():
         agents=[user_proxy, game_master, *agent_players],
         messages=[],
         admin_name=game_master.name,
-        max_round=100,
+        max_round=1000,
     )
     manager = GroupChatManager(groupchat=group_chat, llm_config={"config_list": config_list})
 

@@ -3,6 +3,8 @@ from autogen import AssistantAgent, UserProxyAgent
 from src.handler.game_handler import ResistanceCoupGameHandler
 from src.models.action import ActionType
 from src.models.card import Card
+from src.models.player import PlayerStrategy
+
 
 # SEED = 42
 
@@ -84,7 +86,7 @@ def create_player_agent(
     name: str,
     other_player_names: list[str],
     cards: list[Card],
-    strategy: str,
+    strategy: PlayerStrategy,
     handler: ResistanceCoupGameHandler,
     config_list: list,
 ) -> AssistantAgent:
@@ -175,6 +177,16 @@ def create_player_agent(
         ],
     }
 
+    if strategy == PlayerStrategy.aggressive:
+        strategy_str = ("Your strategy is to play aggressive. Try to assassinate, coup, or steal as soon as you can. "
+                        "Feel free to bluff, but be careful because it can be challenged.")
+    elif strategy == PlayerStrategy.conservative:
+        strategy_str = ("Your strategy is to play conservative. "
+                        "Build up your money, avoid bluffing, and wait for the opportunity to perform a coup.")
+    else:
+        strategy_str = ("Your strategy is to coup as soon as you can and gather money as quickly as possible "
+                        "to have enough to perform a coup against another player.")
+
     instructions = f"""Your name is {name} and you are a player in the game The Resistance: Coup. 
         You are playing against {", ".join(other_player_names)}. 
         
@@ -186,7 +198,7 @@ def create_player_agent(
         Never announce what cards you have, they are secret.
         
         If your action was invalid, you have to pick another action. However feel free to bluff and perform an 
-        action even if you don't have the card.
+        action even if you don't have the card, but be careful because it could be challenged.
         
         You can counter another player's action if action_can_be_countered is "True", 
         after they tried to perform their action.
@@ -199,7 +211,7 @@ def create_player_agent(
         You should ensure both you and your opponents are making valid actions. 
         Also that everyone is only taking actions when it is their turn.
         
-        Your strategy should be to play {strategy}.
+        {strategy_str}
         
         Don't hoard up coins, but rather try the assassinate or coup actions when you have a chance. 
 

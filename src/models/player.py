@@ -1,5 +1,6 @@
 import random
 from abc import ABC
+from enum import Enum
 from typing import List, Optional
 
 from pydantic import BaseModel
@@ -7,11 +8,16 @@ from pydantic import BaseModel
 from src.models.card import Card, CardType
 
 
+class PlayerStrategy(str, Enum):
+    aggressive = "aggressive"
+    conservative = "conservative"
+    coup_freak = "coup_freak"
+
 class Player(BaseModel, ABC):
     name: str
     coins: int = 0
     cards: List[Card] = []
-    strategy: str
+    strategy: PlayerStrategy
     is_active: bool = False
 
     def __str__(self):

@@ -44,7 +44,7 @@ git clone https://github.com/dirkbrnd/Resistance-Coup-Autogen.git
 poetry install
 ```
 
-3. Launch!
+3. Launch and watch the AI agents play the game!
 
 ```sh
 python coup.py
