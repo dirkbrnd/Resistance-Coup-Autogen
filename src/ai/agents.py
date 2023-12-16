@@ -72,8 +72,7 @@ def create_game_master_agent(
         function_map={
             "get_game_state": handler.get_game_state,
         },
-        # max_consecutive_auto_reply=100,
-        description="The game master in a game of The Resistance Coup",
+        description="The game master in a game of The Resistance Coup.",
     )
     return game_master
 
@@ -138,6 +137,39 @@ def create_player_agent(
                 },
             },
             {
+                "name": "challenge_action",
+                "description": "Challenge the previous action that was performed by another player "
+                "if you think that the player that performed the action does not have the required card.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "challenging_player_name": {
+                            "type": "string",
+                            "description": "Send your own name.",
+                            "enum": [name],
+                        },
+                    },
+                    "required": ["challenging_player_name"],
+                },
+            },
+            {
+                "name": "challenge_counter_action",
+                "description": "Challenge the previous counter-action that was performed by another player "
+                "if you think that the player that performed the counter-action does not "
+                "have the required card.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "challenging_player_name": {
+                            "type": "string",
+                            "description": "Send your own name.",
+                            "enum": [name],
+                        },
+                    },
+                    "required": ["challenging_player_name"],
+                },
+            },
+            {
                 "name": "execute_action",
                 "description": "Execute the action that was performed and complete the turn.",
                 "parameters": {
@@ -175,18 +207,22 @@ def create_player_agent(
     if strategy == PlayerStrategy.aggressive:
         strategy_str = (
             "Your strategy is to play aggressive. Try to assassinate, coup, or steal as soon as you can. "
-            "Feel free to bluff, but be careful because it can be challenged.  If you keep getting blocked,"
-            "rather get income on your next turn, before playing aggressive again."
+            "Don't be scared to bluff to get more coins."
+            "If you keep getting blocked, rather get income on your next turn, before playing aggressive again. "
+            "Always challenge other players if you don't think they have the card they claim to have."
         )
     elif strategy == PlayerStrategy.conservative:
         strategy_str = (
             "Your strategy is to play conservative. "
             "Build up your money, avoid bluffing, and wait for the opportunity to perform a coup."
+            "Don't be too reckless with challenging other players after an action or counteraction, but feel free"
+            "to do it if you are pretty sure."
         )
     else:
         strategy_str = (
-            "Your strategy is to perform a coup as soon as you can and gather money as "
-            "quickly as possible."
+            "Your strategy is to perform a coup as soon as you have enough coins, otherwise gather money as "
+            "fast as possible by taking foreign aid or tax. However be careful not to bluff too much, otherwise "
+            "you might lose your cards and be eliminated."
         )
 
     instructions = f"""Your name is {name} and you are a player in the game The Resistance: Coup. 
@@ -205,7 +241,14 @@ def create_player_agent(
         You can counter another player's action if action_can_be_countered is "True", 
         after they tried to perform their action.
         
-        If no one counters your action, you have the call "execute_action" to complete the turn. 
+        Feel free to challenge another player's action if action_can_be_challenged is "True", 
+        after they tried to perform their action, and if you think they are bluffing, by using the
+        challenge_action function.
+        
+        Feel free to challenge another player's counter-action if you think they are bluffing, by using the
+        challenge_counter_action function.
+        
+        If no one counters or challenges your action, you have the call "execute_action" to complete the turn. 
         If after perform_action you find that turn_complete is "True", you don't have to execute your action.
                 
         You also chit-chat with your opponent when you communicate an action to light up the mood.
@@ -228,6 +271,8 @@ def create_player_agent(
         function_map={
             "perform_action": handler.perform_action,
             "counter_action": handler.counter_action,
+            "challenge_action": handler.challenge_action,
+            "challenge_counter_action": handler.challenge_counter_action,
             "execute_action": handler.execute_action,
         },
         max_consecutive_auto_reply=100,

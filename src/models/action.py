@@ -73,34 +73,3 @@ class ExchangeAction(Action):
     action_type: ActionType = ActionType.exchange
     associated_card_type: CardType = CardType.ambassador
     can_be_challenged: bool = True
-
-
-class CounterAction(BaseModel):
-    counter_type: CounterActionType
-    associated_card_type: Optional[List[CardType]]
-
-    def __str__(self):
-        return f"{self.counter_type.value}"
-
-
-class BlockForeignAidCounterAction(CounterAction):
-    counter_type: CounterActionType = CounterActionType.block_foreign_aid
-    associated_card_type: CardType = CardType.duke
-
-
-class BlockAssassinationCounterAction(CounterAction):
-    counter_type: CounterActionType = CounterActionType.block_assassination
-    associated_card_type: CardType = CardType.contessa
-
-
-class BlockStealCounterAction(CounterAction):
-    counter_type: CounterActionType = CounterActionType.block_steal
-    associated_card_type: CardType = CardType.captain
-
-
-def get_counter_action(action_type: ActionType) -> CounterAction:
-    return {
-        ActionType.foreign_aid: BlockForeignAidCounterAction(),
-        ActionType.steal: BlockStealCounterAction(),
-        ActionType.assassinate: BlockAssassinationCounterAction(),
-    }[action_type]
