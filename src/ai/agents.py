@@ -72,7 +72,7 @@ def create_game_master_agent(
         function_map={
             "get_game_state": handler.get_game_state,
         },
-        description="The game master in a game of The Resistance Coup",
+        description="The game master in a game of The Resistance Coup.",
     )
     return game_master
 
@@ -139,7 +139,7 @@ def create_player_agent(
             {
                 "name": "challenge_action",
                 "description": "Challenge the previous action that was performed by another player "
-                               "if you think that the player that performed the action does not have the required card.",
+                "if you think that the player that performed the action does not have the required card.",
                 "parameters": {
                     "type": "object",
                     "properties": {
@@ -155,8 +155,8 @@ def create_player_agent(
             {
                 "name": "challenge_counter_action",
                 "description": "Challenge the previous counter-action that was performed by another player "
-                               "if you think that the player that performed the counter-action does not "
-                               "have the required card.",
+                "if you think that the player that performed the counter-action does not "
+                "have the required card.",
                 "parameters": {
                     "type": "object",
                     "properties": {

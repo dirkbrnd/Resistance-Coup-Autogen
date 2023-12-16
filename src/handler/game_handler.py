@@ -17,12 +17,6 @@ from src.models.card import Card, CardType
 from src.models.player import Player, PlayerStrategy
 
 
-class ChallengeResult(Enum):
-    no_challenge = 0
-    challenge_failed = 1
-    challenge_succeeded = 2
-
-
 ACTIONS_MAP: dict[ActionType, Action] = {
     ActionType.income: IncomeAction(),
     ActionType.foreign_aid: ForeignAidAction(),
@@ -75,7 +69,11 @@ class ResistanceCoupGameHandler:
     _current_counter_action_player_name: Optional[str]
 
     def __init__(self, number_of_players: int):
-        strategies = [PlayerStrategy.conservative, PlayerStrategy.aggressive, PlayerStrategy.coup_freak]
+        strategies = [
+            PlayerStrategy.conservative,
+            PlayerStrategy.aggressive,
+            PlayerStrategy.coup_freak,
+        ]
         for i in range(number_of_players):
             player_name = f"Player_{str(i + 1)}"
             strategy = strategies[i % number_of_players]
@@ -311,10 +309,12 @@ The number of coins in the treasury: {self._treasury}
         self._current_action_target_player_name = target_player_name
 
         if action.can_be_countered or action.can_be_challenged:
-            return {"turn_complete": False,
-                    "action_can_be_countered": action.can_be_countered,
-                    "action_can_be_challenged": action.can_be_challenged,
-                    "game_over": False}
+            return {
+                "turn_complete": False,
+                "action_can_be_countered": action.can_be_countered,
+                "action_can_be_challenged": action.can_be_challenged,
+                "game_over": False,
+            }
         else:
             return self.execute_action(
                 self.current_player.name, action.action_type, target_player_name
@@ -323,7 +323,9 @@ The number of coins in the treasury: {self._treasury}
     def counter_action(self, countering_player_name: str):
         countering_player = self._players[countering_player_name]
         if not countering_player.is_active:
-            raise Exception(f"You have been eliminated {countering_player_name}! You cannot counter.")
+            raise Exception(
+                f"You have been eliminated {countering_player_name}! You cannot counter."
+            )
 
         self._current_action_is_countered = True
         self._current_counter_action_player_name = countering_player_name
@@ -342,7 +344,9 @@ The number of coins in the treasury: {self._treasury}
     def challenge_action(self, challenging_player_name: str):
         challenger = self._players[challenging_player_name]
         if not challenger.is_active:
-            raise Exception(f"You have been eliminated {challenging_player_name}! You cannot challenge.")
+            raise Exception(
+                f"You have been eliminated {challenging_player_name}! You cannot challenge."
+            )
 
         self._current_action_is_challenged = True
 
@@ -350,9 +354,7 @@ The number of coins in the treasury: {self._treasury}
             f"{challenger} is challenging the previous action: {self._current_action.action_type.value}."
         )
         # Player being challenged has the card
-        if card := self.current_player.find_card(
-                self._current_action.associated_card_type
-        ):
+        if card := self.current_player.find_card(self._current_action.associated_card_type):
             self._challenge_against_player_failed(
                 player_being_challenged=self.current_player,
                 card=card,
@@ -373,17 +375,15 @@ The number of coins in the treasury: {self._treasury}
     def challenge_counter_action(self, challenging_player_name: str):
         challenger = self._players[challenging_player_name]
         if not challenger.is_active:
-            raise Exception(f"You have been eliminated {challenging_player_name}! You cannot challenge.")
+            raise Exception(
+                f"You have been eliminated {challenging_player_name}! You cannot challenge."
+            )
 
-        print(
-            f"{challenger} is challenging the previous counter action."
-        )
+        print(f"{challenger} is challenging the previous counter action.")
         countering_player = self._players[self._current_counter_action_player_name]
 
         # Player being challenged has the card
-        if card := self.current_player.find_card(
-                self._current_action.associated_card_type
-        ):
+        if card := self.current_player.find_card(self._current_action.associated_card_type):
             self._challenge_against_player_failed(
                 player_being_challenged=countering_player,
                 card=card,
