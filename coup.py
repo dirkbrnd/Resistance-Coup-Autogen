@@ -13,7 +13,6 @@ config_list = config_list_from_dotenv(
                     filter_dict={
                                   "model": {
                                       "gpt-4",
-                                      # "gpt-3.5-turbo",
                                   }
                               }
                     )
